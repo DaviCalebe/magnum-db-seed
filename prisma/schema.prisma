@@ -33,6 +33,36 @@ model colaboradores {
   movimentacoes movimentacoes[]
 }
 
+
+model unidades {
+  id            Int             @id @default(autoincrement())
+  nome          String          @db.VarChar(150)
+  cnpj          String?         @unique @db.VarChar(18)
+  telefone      String?         @db.VarChar(20)
+  email         String?         @db.VarChar(100)
+  endereco      String?         @db.VarChar(150)
+  cidade        String?         @db.VarChar(100)
+  estado        String?         @db.VarChar(50)
+  cep           String?         @db.VarChar(10)
+  status        status_geral?   @default(ativo)
+  created_at    DateTime        @default(now()) @db.Timestamp(6)
+  updated_at    DateTime?       @db.Timestamp(6)
+  colaboradores colaboradores[]
+  estoque       estoque[]
+  movimentacoes movimentacoes[]
+}
+
+
+model setores {
+  id            Int             @id @default(autoincrement())
+  nome          String          @db.VarChar(100)
+  descricao     String?
+  status        status_geral?   @default(ativo)
+  created_at    DateTime        @default(now()) @db.Timestamp(6)
+  colaboradores colaboradores[]
+}
+
+
 model estoque {
   id         Int       @id @default(autoincrement())
   produto_id Int
@@ -43,6 +73,17 @@ model estoque {
   unidades   unidades  @relation(fields: [unidade_id], references: [id])
 
   @@unique([produto_id, unidade_id])
+}
+
+model produtos {
+  id            Int             @id @default(autoincrement())
+  nome          String          @db.VarChar(150)
+  descricao     String?
+  preco         Decimal         @db.Decimal(10, 2)
+  status        status_geral?   @default(ativo)
+  created_at    DateTime        @default(now()) @db.Timestamp(6)
+  estoque       estoque[]
+  movimentacoes movimentacoes[]
 }
 
 model movimentacoes {
@@ -62,44 +103,6 @@ model movimentacoes {
   colaboradores  colaboradores     @relation(fields: [colaborador_id], references: [id])
   produtos       produtos?         @relation(fields: [produto_id], references: [id])
   unidades       unidades          @relation(fields: [unidade_id], references: [id])
-}
-
-model produtos {
-  id            Int             @id @default(autoincrement())
-  nome          String          @db.VarChar(150)
-  descricao     String?
-  preco         Decimal         @db.Decimal(10, 2)
-  status        status_geral?   @default(ativo)
-  created_at    DateTime        @default(now()) @db.Timestamp(6)
-  estoque       estoque[]
-  movimentacoes movimentacoes[]
-}
-
-model setores {
-  id            Int             @id @default(autoincrement())
-  nome          String          @db.VarChar(100)
-  descricao     String?
-  status        status_geral?   @default(ativo)
-  created_at    DateTime        @default(now()) @db.Timestamp(6)
-  colaboradores colaboradores[]
-}
-
-model unidades {
-  id            Int             @id @default(autoincrement())
-  nome          String          @db.VarChar(150)
-  cnpj          String?         @unique @db.VarChar(18)
-  telefone      String?         @db.VarChar(20)
-  email         String?         @db.VarChar(100)
-  endereco      String?         @db.VarChar(150)
-  cidade        String?         @db.VarChar(100)
-  estado        String?         @db.VarChar(50)
-  cep           String?         @db.VarChar(10)
-  status        status_geral?   @default(ativo)
-  created_at    DateTime        @default(now()) @db.Timestamp(6)
-  updated_at    DateTime?       @db.Timestamp(6)
-  colaboradores colaboradores[]
-  estoque       estoque[]
-  movimentacoes movimentacoes[]
 }
 
 enum status_geral {
