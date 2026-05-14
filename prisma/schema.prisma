@@ -5,104 +5,141 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-
 }
 
 model clientes {
-  id            Int             @id @default(autoincrement())
-  nome          String          @db.VarChar(150)
-  email         String?         @db.VarChar(150)
-  telefone      String?         @db.VarChar(20)
-  status        status_geral?   @default(ativo)
-  created_at    DateTime        @default(now()) @db.Timestamp(6)
+  id           Int             @id @default(autoincrement())
+  nome         String          @db.VarChar(150)
+  email        String?         @db.VarChar(150)
+  telefone     String?         @db.VarChar(20)
+
+  status       status_geral?   @default(ativo)
+
+  created_at   DateTime        @default(now()) @db.Timestamp(6)
+
   movimentacoes movimentacoes[]
 }
 
 model colaboradores {
-  id            Int             @id @default(autoincrement())
-  nome          String          @db.VarChar(150)
-  email         String?         @db.VarChar(150)
-  telefone      String?         @db.VarChar(20)
-  ocupacao      String?         @db.VarChar(100)
-  unidade_id    Int
-  setor_id      Int?
-  status        status_geral?   @default(ativo)
-  created_at    DateTime        @default(now()) @db.Timestamp(6)
-  setores       setores?        @relation(fields: [setor_id], references: [id])
-  unidades      unidades        @relation(fields: [unidade_id], references: [id])
+  id           Int             @id @default(autoincrement())
+  nome         String          @db.VarChar(150)
+  email        String?         @db.VarChar(150)
+  telefone     String?         @db.VarChar(20)
+
+  ocupacao     String?         @db.VarChar(100)
+
+  unidade_id   Int
+  setor_id     Int?
+
+  status       status_geral?   @default(ativo)
+
+  created_at   DateTime        @default(now()) @db.Timestamp(6)
+
+  unidade unidades @relation( fields: [unidade_id], references: [id], onDelete: Restrict, onUpdate: Cascade )
+
+  setor setores? @relation(fields: [setor_id], references: [id], onDelete: SetNull, onUpdate: Cascade)
+
   movimentacoes movimentacoes[]
 }
-
 
 model unidades {
-  id            Int             @id @default(autoincrement())
-  nome          String          @db.VarChar(150)
-  cnpj          String?         @unique @db.VarChar(18)
-  telefone      String?         @db.VarChar(20)
-  email         String?         @db.VarChar(100)
-  endereco      String?         @db.VarChar(150)
-  cidade        String?         @db.VarChar(100)
-  estado        String?         @db.VarChar(50)
-  cep           String?         @db.VarChar(10)
-  status        status_geral?   @default(ativo)
-  created_at    DateTime        @default(now()) @db.Timestamp(6)
-  updated_at    DateTime?       @db.Timestamp(6)
-  colaboradores colaboradores[]
-  estoque       estoque[]
-  movimentacoes movimentacoes[]
-}
+  id             Int             @id @default(autoincrement())
+  nome           String          @db.VarChar(150)
+  cnpj           String?         @unique @db.VarChar(18)
+  telefone       String?         @db.VarChar(20)
+  email          String?         @db.VarChar(100)
+  endereco       String?         @db.VarChar(150)
+  cidade         String?         @db.VarChar(100)
+  estado         String?         @db.VarChar(50)
+  cep            String?         @db.VarChar(10)
 
+  status         status_geral?   @default(ativo)
+
+  created_at     DateTime        @default(now()) @db.Timestamp(6)
+  updated_at     DateTime?       @updatedAt @db.Timestamp(6)
+
+  colaboradores  colaboradores[]
+  estoque        estoque[]
+  movimentacoes  movimentacoes[]
+}
 
 model setores {
-  id            Int             @id @default(autoincrement())
-  nome          String          @db.VarChar(100)
-  descricao     String?
-  status        status_geral?   @default(ativo)
-  created_at    DateTime        @default(now()) @db.Timestamp(6)
-  colaboradores colaboradores[]
+  id             Int             @id @default(autoincrement())
+  nome           String          @db.VarChar(100)
+  descricao      String?
+
+  status         status_geral?   @default(ativo)
+
+  created_at     DateTime        @default(now()) @db.Timestamp(6)
+
+  colaboradores  colaboradores[]
 }
 
+model produtos {
+  id             Int             @id @default(autoincrement())
+  nome           String          @db.VarChar(150)
+  descricao      String?
+
+  preco          Decimal         @db.Decimal(10, 2)
+
+  status         status_geral?   @default(ativo)
+
+  created_at     DateTime        @default(now()) @db.Timestamp(6)
+
+  estoque        estoque[]
+  movimentacoes  movimentacoes[]
+}
 
 model estoque {
-  id         Int       @id @default(autoincrement())
-  produto_id Int
-  unidade_id Int
-  quantidade Int       @default(0)
-  updated_at DateTime? @db.Timestamp(6)
-  produtos   produtos  @relation(fields: [produto_id], references: [id])
-  unidades   unidades  @relation(fields: [unidade_id], references: [id])
+  id             Int       @id @default(autoincrement())
+
+  produto_id     Int
+  unidade_id     Int
+
+  quantidade     Int       @default(0)
+
+  updated_at     DateTime? @updatedAt @db.Timestamp(6)
+
+  produto produtos @relation( fields: [produto_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  unidade unidades @relation(fields: [unidade_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
 
   @@unique([produto_id, unidade_id])
 }
 
-model produtos {
-  id            Int             @id @default(autoincrement())
-  nome          String          @db.VarChar(150)
-  descricao     String?
-  preco         Decimal         @db.Decimal(10, 2)
-  status        status_geral?   @default(ativo)
-  created_at    DateTime        @default(now()) @db.Timestamp(6)
-  estoque       estoque[]
-  movimentacoes movimentacoes[]
-}
-
 model movimentacoes {
-  id             Int               @id @default(autoincrement())
-  tipo           tipo_movimentacao
-  produto_id     Int?
-  quantidade     Int
-  valor_unitario Decimal?          @db.Decimal(10, 2)
-  valor_total    Decimal           @db.Decimal(10, 2)
-  data           DateTime?         @default(now()) @db.Timestamp(6)
-  cliente_id     Int?
-  colaborador_id Int
-  unidade_id     Int
-  observacao     String?
-  created_at     DateTime          @default(now()) @db.Timestamp(6)
-  clientes       clientes?         @relation(fields: [cliente_id], references: [id])
-  colaboradores  colaboradores     @relation(fields: [colaborador_id], references: [id])
-  produtos       produtos?         @relation(fields: [produto_id], references: [id])
-  unidades       unidades          @relation(fields: [unidade_id], references: [id])
+  id               Int               @id @default(autoincrement())
+
+  tipo             tipo_movimentacao
+
+  produto_id       Int?
+
+  quantidade       Int
+
+  valor_unitario   Decimal?          @db.Decimal(10, 2)
+
+  valor_total      Decimal           @db.Decimal(10, 2)
+
+  data             DateTime?         @default(now()) @db.Timestamp(6)
+
+  cliente_id       Int?
+
+  colaborador_id   Int
+
+  unidade_id       Int
+
+  observacao       String?
+
+  created_at       DateTime          @default(now()) @db.Timestamp(6)
+
+  cliente clientes? @relation(fields: [cliente_id], references: [id], onDelete: SetNull, onUpdate: Cascade)
+
+  colaborador colaboradores @relation(fields: [colaborador_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  produto produtos? @relation(fields: [produto_id], references: [id], onDelete: SetNull, onUpdate: Cascade)
+
+  unidade unidades @relation(fields: [unidade_id], references: [id], onDelete: Restrict, onUpdate: Cascade)
 }
 
 enum status_geral {

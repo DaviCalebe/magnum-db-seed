@@ -81,8 +81,11 @@ async function createUnidades() {
                 nome: `Magnum Tires ${unidades.estado} - ${unidades.cidade}`,
                 cnpj: faker.string.numeric(14),
                 telefone: `(${faker.number.int({ min: 11, max: 99 })}) 9${faker.number.int({ min: 1000, max: 9999 })}-${faker.number.int({ min: 1000, max: 9999 })}`,
-                email: faker.internet.email(),
-                endereco: faker.location.streetAddress(),
+                email: `filial.${unidades.cidade
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/\s+/g, "")
+                .toLowerCase()}@magnumtires.com.br`,                endereco: faker.location.streetAddress(),
                 cidade: unidades.cidade,
                 estado: unidades.estado,
                 cep: faker.location.zipCode('########'),
